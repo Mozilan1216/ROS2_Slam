@@ -1,0 +1,15 @@
+# 忽略编译生成的文件夹
+build/
+install/
+log/
+
+# 忽略 Python 缓存
+__pycache__/
+*.pyc
+
+# 忽略 RTAB-Map 生成的地图数据库（非常大，通常在 ~/.ros/ 或当前目录）
+*.db
+
+# 忽略本地 IDE 配置
+.vscode/
+.idea/

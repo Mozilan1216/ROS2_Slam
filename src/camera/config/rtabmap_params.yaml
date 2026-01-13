@@ -1,0 +1,49 @@
+rtabmap:
+  rtabmap:
+    ros__parameters:
+      # --- 1. 基础订阅与同步配置 ---
+      subscribe_depth: true
+      subscribe_rgb: true
+      approx_sync: true
+      qos: 1                     # 必须与 RealSense 驱动的 Best Effort 对齐
+      wait_for_transform: 0.8    # 解决 "extrapolation into the past" 坐标转换超时报错
+
+      # --- 2. 核心缓冲区优化 (解决队列溢出报错) ---
+      queue_size: 200            # 提升队列长度，防止因 CPU 繁忙导致丢包
+      sync_queue_size: 200       # 增加同步队列，给彩色/深度图更多匹配机会
+      
+      # --- 3. 视觉里程计 (VO) 与 GPU 加速 (针对 RTX 4060) ---
+      Vis/FeatureType: "8"           # GFTT 算法，对 GPU 友好且匹配稳定
+      Vis/MaxFeatures: "1000"        # 增加特征点上限，提高匹配精度
+      Vis/MinInliers: "15"           # 提高门槛以确保位姿精度（已去重，保留高精度值）
+      Vis/EstimationType: "1"        # 强制 3D->2D 匹配，RGB-D 相机最稳方案
+      Vis/CorGuessWinSize: "40"      # 搜索窗口大小，平衡性能与精度
+      Vis/BundleAdjustment: "1"      # 开启束调整，优化重投影误差以消除重影
+      Odom/Strategy: "0"             # Frame-to-Map 模式，有效减少轨迹漂移
+
+      # --- 4. 空间对齐与重力约束 (利用 D435i IMU) ---
+      # 利用 IMU 修正地图水平位姿，这个值越小修正越强
+      Optimizer/GravitySigma: "0.1"  # 设为 0.1 强制地图水平，解决地板倾斜问题
+      RGBD/OptimizeFromGraphEnd: "true" # 闭环检测后从全图末端开始整体优化对齐
+      RGBD/FillHoles: "true"         # 尝试填充深度图空洞，提升建图完整性
+      RGBD/OptimizeMaxError: "1.0"   # 强制优化器剔除偏差过大的回环，减少重影
+      RGBD/ProximityBySpace: "true"  # 开启空间近邻检测，增加闭环机会
+
+      # --- 5. 2D 栅格地图质量优化 (导航级地图关键) ---
+      Grid/FromDepth: "true"         # 从深度图投影生成 2D 栅格
+      Grid/CellSize: "0.05"          # 分辨率设为 5cm，兼顾导航精度与算力
+      Grid/3D: "false"               # 强制投影为 2D 栅格，图像更锐利
+      
+      # 强制过滤地板与天花板：解决路径中的黑色噪点（黑斑）
+      Grid/MaxGroundHeight: "0.1"    # 10cm 以下全部视为地面（白色路径区域）
+      Grid/MinObstacleHeight: "0.11" # 11cm 以上才认为是障碍物（黑色墙壁）
+      Grid/MaxObstacleHeight: "2.0"  # 忽略 2m 以上的天花板数据
+
+      # 射线追踪与清理
+      Grid/RayTracing: "true"        # 开启射线追踪，自动清理移动物体留下的残影
+      Grid/MinClusterSize: "20"      # 忽略少于 20 个像素的孤立噪点，让路面更干净
+      Grid/NormalsSegmentation: "true" # 利用法线区分平面，比纯高度裁剪更精准
+
+      # --- 6. 系统运行性能调优 ---
+      Rtabmap/DetectionRate: "1.0"   # 每秒更新 1 次，防止 GPU 过热卡顿
+      Rtabmap/ImagesAlreadyExposed: "true" # 增加并行处理效率

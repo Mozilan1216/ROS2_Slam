@@ -1,0 +1,33 @@
+/camera/camera:
+  ros__parameters:
+    # --- 1. 传感器开关控制 ---
+    enable_color: true
+    enable_depth: true
+    enable_infra1: false
+    enable_infra2: false
+    
+    # --- 2. 核心功能：深度与彩色对齐 (SLAM 核心) ---
+    align_depth:
+      enable: true
+    
+    # --- 3. 图像后处理：开启滤波以优化地图精度 ---
+    # spatial: 空间滤波（平整平面）; temporal: 时域滤波（减少闪烁）
+    filters: "spatial,temporal"
+
+    # --- 4. 视频流参数
+    rgb_camera:
+      profile: "640x480x15"
+    depth_module:
+      profile: "640x480x15"  #
+    
+    # --- 5. IMU 配置：确保高频同步以防止建图“爆红” ---
+    enable_gyro: true
+    enable_accel: true
+    unite_imu_method: 2      # 使用同步方式融合加速度与陀螺仪
+    accel_fps: 200           # 保持高采样率以辅助视觉里程计
+    gyro_fps: 200
+    
+    # --- 6. TF 坐标发布 ---
+    publish_tf: true
+    tf_publish_rate: 60.0
+
