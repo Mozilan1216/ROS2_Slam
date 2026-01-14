@@ -3,6 +3,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
 
 def generate_launch_description():
     # 路径配置
@@ -10,6 +11,7 @@ def generate_launch_description():
     map_yaml_file = os.path.join(camera_pkg, 'map', 'rtabmap_20260112.yaml') 
     loc_params_file = os.path.join(camera_pkg, 'config', 'rtabmap_params_localization.yaml')
     nav2_params_file = os.path.join(camera_pkg, 'config', 'nav2_params.yaml')
+    rviz_config_path = os.path.join(camera_pkg, 'rviz', 'D435i.rviz')
 
     rs_launch_dir = os.path.join(get_package_share_directory('realsense2_camera'), 'launch')
     rtabmap_launch_dir = os.path.join(get_package_share_directory('rtabmap_launch'), 'launch')
@@ -33,6 +35,8 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(os.path.join(rtabmap_launch_dir, 'rtabmap.launch.py')),
         launch_arguments={
             'rtabmap_params_proxy': loc_params_file,
+            'database_path': '/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_20260112.db',
+            'localization': 'true',  # 激活定位模式，不再添加新节点到数据库
             'visual_odometry': 'true',
             'frame_id': 'camera_link',  # 无底盘时，相机就是机器人中心
             'approx_sync': 'true',
@@ -46,6 +50,15 @@ def generate_launch_description():
             'imu_topic': '/camera/camera/imu',
             'wait_imu_to_init': 'false'
         }.items()
+    )
+
+    # 添加 RViz 节点
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz_config_path],
+        output='screen'
     )
 
     # C. Nav2 导航堆栈
@@ -62,5 +75,6 @@ def generate_launch_description():
     return LaunchDescription([
         SetEnvironmentVariable('ROS_LOCALHOST_ONLY', '1'),
         camera_node,
+        rviz_node, # 立即启动 RViz
         TimerAction(period=3.0, actions=[rtabmap_node, nav2_node])
     ])
