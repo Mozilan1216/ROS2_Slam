@@ -21,7 +21,13 @@ def generate_launch_description():
             ),
             # 2. 通过向 rs_launch 传递 'ros_params_file' 参数来加载 YAML
             launch_arguments={
-                'ros_params_file': config_path
+                'ros_params_file': config_path,
+                'enable_gyro': 'true',          # 强制开启陀螺仪
+                'enable_accel': 'true',         # 强制开启加速度计
+                'unite_imu_method': '2',        # 强制合并 IMU 话题
+                'enable_sync': 'true',          # 强制开启 RGB/Depth 同步
+                'camera_name': 'camera',        # 确保节点名与 YAML 匹配
+                'namespace': 'camera'           # 确保命名空间一致
             }.items()
         )
     ])
