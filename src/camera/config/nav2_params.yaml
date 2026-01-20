@@ -94,7 +94,7 @@ local_costmap:
           data_type: "PointCloud2"
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: True
+        map_subscribe_transient_local: True # 必须为 True 以接收 map_server 的地图
 
 global_costmap:
   global_costmap:

@@ -48,7 +48,7 @@ def generate_launch_description():
             'depth_topic': '/camera/camera/aligned_depth_to_color/image_raw',
             'camera_info_topic': '/camera/camera/color/camera_info',
             'imu_topic': '/camera/camera/imu',
-            'wait_imu_to_init': 'false'
+            'wait_imu_to_init': 'false',
         }.items()
     )
 
@@ -65,7 +65,7 @@ def generate_launch_description():
     nav2_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(nav2_launch_dir, 'bringup_launch.py')),
         launch_arguments={
-            'map': map_yaml_file,
+            'map': map_yaml_file,# 这里会启动 map_server 负载该 yaml 文件
             'use_sim_time': 'false',
             'params_file': nav2_params_file,
             'autostart': 'true'

@@ -56,6 +56,12 @@ rtabmap:
       Grid/MaxGroundHeight: "0.1"         # 10cm 以下视为地面
       Grid/MinObstacleHeight: "0.15"      # 15cm 以上视为障碍物 (跳过扫地机器人等小物体)
       Grid/MaxObstacleHeight: "2.0"       # 忽略 2m 以上的干扰（如吊灯）
+
+      Grid/FromDepth: "false"             # 关键：不从深度图生成网格
+      Reg/Strategy: "0"                   # 仅视觉定位
+      
+      # 确保不发布 /map 话题给 Nav2 造成干扰
+      publish_tf: true                    # 必须保持 true，提供定位变换
       
       # 动态清理
       Grid/RayTracing: "true"             # 开启射线追踪，自动清理移动的人影/物体

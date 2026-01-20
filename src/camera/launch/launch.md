@@ -1,8 +1,12 @@
-# 测试摄像头是否正常使用的代码
-d435i_launch.py
+1. 检测摄像头驱动代码
+ros2 launch d435i_launch.py
 
-# D435i进行视觉建模
-slam_launch.py
+验证陀螺仪状态（应返回 Boolean value is: True）：
+ros2 param get /camera/camera enable_gyro
 
-# 根据D435i建好的地图进行nav导航
-nav_d435i_launch.py
+2. D435i 进行视觉建模
+ros2 launch slam_launch.py
+
+
+3. 根据 D435i 建好的地图进行 nav 导航
+ros2 launch nav_d435i_launch.py

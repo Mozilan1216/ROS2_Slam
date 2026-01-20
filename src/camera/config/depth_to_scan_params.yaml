@@ -1,0 +1,24 @@
+# depthimage_to_laserscan 配置文件
+# 针对 Intel RealSense D435i 优化
+depthimage_to_laserscan:
+  ros__parameters:
+    # --- 1. 扫描范围与采样设置 ---
+    # scan_height 代表从深度图中心取多少行像素用于生成雷达线。
+    # D435i 分辨率为 640x480 时，设为 10-20 可以获得较稳定的几何特征。
+    scan_height: 10
+    
+    # 扫描间隔时间，30fps 对应约为 0.033s
+    scan_time: 0.033
+
+    # --- 2. 距离限制 (单位: 米) ---
+    # range_min 应略大于相机的最小探测盲区（D435i 约为 0.105m）
+    range_min: 0.15
+    
+    # range_max 建议设为 4.0-5.0m。虽然 D435i 能看更远，但远距离深度误差会随距离平方增长，
+    # 设得太大会引入大量噪点，干扰 AMCL 的粒子收敛。
+    range_max: 4.5
+
+    # --- 3. 坐标系配置 ---
+    # 必须与你的 TF 树中 D435i 的深度坐标系名称一致
+    # 根据你之前的 d435i_params.yaml 默认设置，通常是 camera_depth_frame
+    output_frame_id: "camera_depth_frame"
