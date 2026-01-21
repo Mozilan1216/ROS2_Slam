@@ -9,3 +9,6 @@ rtabmap_params_localization.yaml
 
 # nav配置文件
 nav2_params.yaml
+
+# AMCL配置文件
+amcl_params.yaml

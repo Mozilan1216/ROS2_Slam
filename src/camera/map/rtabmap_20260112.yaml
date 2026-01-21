@@ -1,4 +1,4 @@
-image: rtabmap_20260112.pgm
+image: /home/mozilan/nav2_ws/src/camera/map/rtabmap_20260112.pgm
 resolution: 0.05
 origin: [-7.67762, -10.8616, 0.0]
 negate: 0
