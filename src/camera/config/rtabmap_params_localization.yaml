@@ -11,6 +11,7 @@ rtabmap:
       Mem/ReduceGraph: "true"             # 优化图结构，降低定位时的计算压力
       # 数据库路径：请确保此路径在你的机器上是正确的
       database_path: "/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_20260112.db"
+      
 
       # ==========================================================
       # 2. 基础订阅与同步配置 (解决时间戳同步与坐标转换报错)
@@ -28,9 +29,9 @@ rtabmap:
       # ==========================================================
       Vis/FeatureType: "6"                # 6=GFTT/ORB: 对实时性友好且在室内环境更稳定
       Vis/MaxFeatures: "1000"             # 增加特征点数量，从默认的 400 提升到 1000
-      Vis/MinInliers: "10"                # 关键：将匹配门槛从 20 降低到 10，让定位更容易触发
+      Vis/MinInliers: "8"               # 关键：将匹配门槛从 20 降低到 8，让定位更容易触发
       Vis/EstimationType: "1"             # 1=3D->2D (PnP): RGB-D 相机最稳定的运动估计方式
-      Vis/CorGuessWinSize: "40"           # 特征匹配搜索窗口大小
+      Vis/CorGuessWinSize: "50"           # 特征匹配搜索窗口大小
       Vis/BundleAdjustment: "1"           # 开启束调整，利用 GPU 性能优化位姿，减少地图重影
       
       # 里程计策略

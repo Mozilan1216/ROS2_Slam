@@ -1,5 +1,6 @@
 1. 检测摄像头驱动代码
 ros2 launch d435i_launch.py
+// 重定位代码的驱动是直接调用的该代码
 
 验证陀螺仪状态（应返回 Boolean value is: True）：
 ros2 param get /camera/camera enable_gyro
