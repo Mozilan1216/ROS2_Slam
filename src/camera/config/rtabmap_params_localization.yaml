@@ -28,12 +28,13 @@ rtabmap:
       # 3. 视觉特征提取优化 (解决 "Not enough inliers" 报错)
       # ==========================================================
       Vis/FeatureType: "6"                # 6=GFTT/ORB: 对实时性友好且在室内环境更稳定
-      Vis/MaxFeatures: "1000"             # 增加特征点数量，从默认的 400 提升到 1000
+      Vis/MaxFeatures: "1500"             # 增加特征点数量，从默认的 400 提升到 1000
       Vis/MinInliers: "8"               # 关键：将匹配门槛从 20 降低到 8，让定位更容易触发
       Vis/EstimationType: "1"             # 1=3D->2D (PnP): RGB-D 相机最稳定的运动估计方式
       Vis/CorGuessWinSize: "50"           # 特征匹配搜索窗口大小
       Vis/BundleAdjustment: "1"           # 开启束调整，利用 GPU 性能优化位姿，减少地图重影
-      
+      Vis/InlierDistance: "0.1"
+
       # 里程计策略
       Odom/Strategy: "0"                  # 0=Frame-to-Map: 相比 Frame-to-Frame 漂移更小
       Odom/FillInfoData: "true"
@@ -44,9 +45,11 @@ rtabmap:
       # 利用 D435i 的重力感应修正地图
       Optimizer/GravitySigma: "0.1"       # 较小的值表示强约束，强制地图保持水平，解决地板倾斜
       RGBD/OptimizeFromGraphEnd: "true"   # 发生回环后从末端优化，保证当前定位的连续性
-      RGBD/OptimizeMaxError: "2.0"        # 剔除偏差过大的回环检测，防止地图被“拉坏”
+      RGBD/OptimizeMaxError: "10.0"  # 将 3.0 提高到 5.0，给初始重定位更多的容错空间
+      RGBD/OptimizeMaxErrorAngle: "5.0" # 角度误差也同步放宽
       RGBD/ProximityBySpace: "true"       # 开启基于距离的近邻检测，增加定位成功率
       RGBD/NeighborLinkRefining: "true"   # 定位后进行细化对齐
+      Rtabmap/MaxRepublished: "5"  # 从 2 增加到 5，让系统参考更多历史关键帧来验证当前位置
 
       # ==========================================================
       # 5. 2D 栅格地图质量优化 (Nav2 导航专用)

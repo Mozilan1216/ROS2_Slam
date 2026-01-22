@@ -10,7 +10,7 @@ def generate_launch_description():
     pkg_dir = get_package_share_directory('camera')
     rtabmap_launch_dir = os.path.join(get_package_share_directory('rtabmap_launch'), 'launch')
     # 确保此处指向你建好的数据库
-    rtabmap_db_file = os.path.join(pkg_dir, 'map', 'rtabmap_20260112.db')
+    rtabmap_db_file = os.path.join(pkg_dir, 'rtabmap', 'rtabmap_20260112.db')
     rviz_config_path = os.path.join(pkg_dir, 'rviz', 'relocation.rviz')
 
     # 2. 启动相机驱动 (直接复用你 slam_launch.py 中的参数)
@@ -36,11 +36,14 @@ def generate_launch_description():
             'camera_info_topic': '/camera/camera/color/camera_info',
             'imu_topic': '/camera/camera/imu',
             'wait_imu_to_init': 'false',
-            'frame_id': 'camera_link',
             'approx_sync': 'true',
             'qos': '1',                      # 使用 Reliable 模式
             'rviz': 'false',                 # 我们手动启动自定义 RViz
-            'viz': 'true'                    # 开启你需要的 rtabmap_viz 界面
+            'viz': 'true',                    # 开启你需要的 rtabmap_viz 界面
+            'visual_odometry': 'true',          # 开启视觉里程计代替物理轮式里程计
+            'frame_id': 'camera_link',          # 直接以相机作为主体
+            'subscribe_odom_info': 'true',      # 订阅里程计信息用于调试
+            'publish_tf_odom': 'true',          # 由 RTAB-Map 发布 odom -> camera_link
         }.items()
     )
 
