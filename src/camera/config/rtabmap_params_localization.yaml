@@ -1,6 +1,5 @@
 # RTAB-Map 定位模式优化参数 (针对 D435i + RTX 4060)
-rtabmap:
-  rtabmap:
+/**:
     ros__parameters:
       # ==========================================================
       # 1. 核心模式切换 (定位模式关键)
@@ -61,6 +60,7 @@ rtabmap:
       Grid/MaxGroundHeight: "0.1"         # 10cm 以下视为地面
       Grid/MinObstacleHeight: "0.15"      # 15cm 以上视为障碍物 (跳过扫地机器人等小物体)
       Grid/MaxObstacleHeight: "2.0"       # 忽略 2m 以上的干扰（如吊灯）
+      Grid/RayTracing: "true"            # 射线追踪用于清理动态物体（如挪走的椅子）
 
       Grid/FromDepth: "false"             # 关键：不从深度图生成网格
       Reg/Strategy: "0"                   # 仅视觉定位
@@ -78,3 +78,4 @@ rtabmap:
       # ==========================================================
       Rtabmap/DetectionRate: "1.0"        # 定位模式下 1Hz 更新足够，节省 CPU 给 Nav2 使用
       RGBD/FillHoles: "true"              # 填充深度图空洞
+      

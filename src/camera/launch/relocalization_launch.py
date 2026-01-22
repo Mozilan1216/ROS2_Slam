@@ -11,7 +11,9 @@ def generate_launch_description():
     rtabmap_launch_dir = os.path.join(get_package_share_directory('rtabmap_launch'), 'launch')
     # 确保此处指向你建好的数据库
     rtabmap_db_file = os.path.join(pkg_dir, 'rtabmap', 'rtabmap_20260112.db')
+    map_yaml_file = os.path.join(pkg_dir, 'map', 'rtabmap_20260112.yaml')
     rviz_config_path = os.path.join(pkg_dir, 'rviz', 'relocation.rviz')
+    rtabmap_config_path = os.path.join(pkg_dir, 'config', 'rtabmap_params_localization.yaml')
 
     # 2. 启动相机驱动 (直接复用你 slam_launch.py 中的参数)
     camera_node = IncludeLaunchDescription(
@@ -24,13 +26,20 @@ def generate_launch_description():
         }.items()
     )
 
-    # 3. 官方 RTAB-Map 重定位模式 (模仿 slam_launch.py 但开启定位)
-    rtabmap_node = IncludeLaunchDescription(
+    # 3. 手持模式静态 TF (base_link -> camera_link)
+    static_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'camera_link']
+    )
+
+    # 4. 官方 RTAB-Map 重定位模式 (模仿 slam_launch.py 但开启定位)
+    rtabmap_node= IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(rtabmap_launch_dir, 'rtabmap.launch.py')),
         launch_arguments={
             'localization': 'true',          # 核心：开启定位模式
             'database_path': rtabmap_db_file,
-            'rtabmap_args': '--Mem/IncrementalMemory false --Mem/InitWMWithAllNodes true',
+            'params_file': rtabmap_config_path,
             'rgb_topic': '/camera/camera/color/image_raw',
             'depth_topic': '/camera/camera/aligned_depth_to_color/image_raw',
             'camera_info_topic': '/camera/camera/color/camera_info',
@@ -47,12 +56,12 @@ def generate_launch_description():
         }.items()
     )
 
-    # 4. 手动启动其他配套节点
+    # 5. 手动启动其他配套节点
     map_server = Node(
         package='nav2_map_server',
         executable='map_server',
         name='map_server',
-        parameters=[{'yaml_filename': os.path.join(pkg_dir, 'map', 'rtabmap_20260112.yaml')}]
+        parameters=[{'yaml_filename': map_yaml_file}]
     )
     
     map_manager = Node(
@@ -73,6 +82,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         camera_node,
+        static_tf,
         map_server,
         map_manager,
         delayed_rtabmap,
