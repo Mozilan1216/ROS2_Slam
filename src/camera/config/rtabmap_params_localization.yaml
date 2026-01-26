@@ -1,81 +1,151 @@
-# RTAB-Map 定位模式优化参数 (针对 D435i + RTX 4060)
-/**:
+camera:
+  rtabmap:
     ros__parameters:
       # ==========================================================
-      # 1. 核心模式切换 (定位模式关键)
+      # 1. 核心模式切换 (定位模式)
       # ==========================================================
-      localization: true          # 必须为 true
-      Mem/IncrementalMemory: "false"      # 关闭增量建图，进入纯定位模式
-      Mem/InitWMWithAllNodes: "true"      # 启动时预加载所有地图节点到工作内存，加快重定位
-      Mem/ReduceGraph: "true"             # 优化图结构，降低定位时的计算压力
-      # 数据库路径：请确保此路径在你的机器上是正确的
+      localization: true                  # 节点布尔参数，不加引号
+      Mem/IncrementalMemory: "false"      # 内部参数，必须加引号
+      Mem/InitWMWithAllNodes: "true"
+      Mem/ReduceGraph: "true"
       database_path: "/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_20260112.db"
-      
 
       # ==========================================================
-      # 2. 基础订阅与同步配置 (解决时间戳同步与坐标转换报错)
+      # 2. 基础订阅与同步
       # ==========================================================
       subscribe_depth: true
       subscribe_rgb: true
-      approx_sync: true                   # 使用近似同步，解决深度图和彩色图时间戳微小偏差
-      qos: 1                              # 1=Reliable, 如果 RealSense 驱动是 Best Effort 请保持一致
-      wait_for_transform: 0.2             # 等待 TF 变换的时间 (秒)
-      queue_size: 100                     # 增大消息队列，防止丢包
-      sync_queue_size: 100                # 增大同步队列
+      approx_sync: true
+      qos: 1
+      wait_for_transform: 0.2
+      queue_size: 100
+      sync_queue_size: 100
 
       # ==========================================================
-      # 3. 视觉特征提取优化 (解决 "Not enough inliers" 报错)
+      # 3. 视觉特征提取 (优化重定位)
       # ==========================================================
-      Vis/FeatureType: "6"                # 6=GFTT/ORB: 对实时性友好且在室内环境更稳定
-      Vis/MaxFeatures: "1500"             # 增加特征点数量，从默认的 400 提升到 1000
-      Vis/MinInliers: "8"               # 关键：将匹配门槛从 20 降低到 8，让定位更容易触发
-      Vis/EstimationType: "1"             # 1=3D->2D (PnP): RGB-D 相机最稳定的运动估计方式
-      Vis/CorGuessWinSize: "50"           # 特征匹配搜索窗口大小
-      Vis/BundleAdjustment: "1"           # 开启束调整，利用 GPU 性能优化位姿，减少地图重影
+      Vis/FeatureType: "6"                # 6=GFTT/ORB
+      Vis/MaxFeatures: "1500"
+      Vis/MinInliers: "8"                 # 降低门槛以提高重定位成功率
+      Vis/EstimationType: "1"             # 3D->2D (PnP)
+      Vis/CorGuessWinSize: "50"
+      Vis/BundleAdjustment: "1"
       Vis/InlierDistance: "0.1"
 
       # 里程计策略
-      Odom/Strategy: "0"                  # 0=Frame-to-Map: 相比 Frame-to-Frame 漂移更小
+      Odom/Strategy: "0"                  # Frame-to-Map
       Odom/FillInfoData: "true"
 
       # ==========================================================
-      # 4. 空间对齐、回环检测与 IMU 约束
+      # 4. 空间优化与回环约束
       # ==========================================================
-      # 利用 D435i 的重力感应修正地图
-      Optimizer/GravitySigma: "0.1"       # 较小的值表示强约束，强制地图保持水平，解决地板倾斜
-      RGBD/OptimizeFromGraphEnd: "true"   # 发生回环后从末端优化，保证当前定位的连续性
-      RGBD/OptimizeMaxError: "10.0"  # 将 3.0 提高到 5.0，给初始重定位更多的容错空间
-      RGBD/OptimizeMaxErrorAngle: "5.0" # 角度误差也同步放宽
-      RGBD/ProximityBySpace: "true"       # 开启基于距离的近邻检测，增加定位成功率
-      RGBD/NeighborLinkRefining: "true"   # 定位后进行细化对齐
-      Rtabmap/MaxRepublished: "5"  # 从 2 增加到 5，让系统参考更多历史关键帧来验证当前位置
+      Optimizer/GravitySigma: "0.1"       # 保持地图水平
+      RGBD/OptimizeFromGraphEnd: "true"
+      RGBD/OptimizeMaxError: "10.0"
+      RGBD/OptimizeMaxErrorAngle: "5.0"
+      RGBD/ProximityBySpace: "true"
+      RGBD/NeighborLinkRefining: "true"
+      Rtabmap/MaxRepublished: "5"
 
       # ==========================================================
-      # 5. 2D 栅格地图质量优化 (Nav2 导航专用)
+      # 5. 2D 栅格地图质量 (针对 Nav2)
       # ==========================================================
-      Grid/CellSize: "0.05"               # 5cm 分辨率，平衡精度与导航性能
-      Grid/3D: "false"                    # 投影为纯 2D 地图，减少冗余数据
+      Grid/CellSize: "0.05"
+      Grid/3D: "false"
+      Grid/MaxGroundHeight: "0.1"
+      Grid/MinObstacleHeight: "0.15"
+      Grid/MaxObstacleHeight: "2.0"
+      Grid/RayTracing: "true"
+      Grid/FromDepth: "false"             # 使用激光或之前建好的地图信息
+      Grid/MinClusterSize: "20"
+      Grid/NormalsSegmentation: "true"
+      Reg/Strategy: "0"                   # 仅视觉
+      publish_tf: true
       
-      # 障碍物过滤 (解决路面黑斑和天花板干扰)
-      Grid/MaxGroundHeight: "0.1"         # 10cm 以下视为地面
-      Grid/MinObstacleHeight: "0.15"      # 15cm 以上视为障碍物 (跳过扫地机器人等小物体)
-      Grid/MaxObstacleHeight: "2.0"       # 忽略 2m 以上的干扰（如吊灯）
-      Grid/RayTracing: "true"            # 射线追踪用于清理动态物体（如挪走的椅子）
+      # ==========================================================
+      # 6. 系统运行性能
+      # ==========================================================
+      Rtabmap/DetectionRate: "1.0"
+      RGBD/FillHoles: "true"
 
-      Grid/FromDepth: "false"             # 关键：不从深度图生成网格
-      Reg/Strategy: "0"                   # 仅视觉定位
+# # RTAB-Map 定位模式优化参数 (针对 D435i + RTX 4060)
+# /camera/rtabmap:
+#     ros__parameters:
+#       # ==========================================================
+#       # 1. 核心模式切换 (定位模式关键)
+#       # ==========================================================
+#       localization: true          # 必须为 true
+#       Mem/IncrementalMemory: "false"      # 关闭增量建图，进入纯定位模式
+#       Mem/InitWMWithAllNodes: "true"      # 启动时预加载所有地图节点到工作内存，加快重定位
+#       Mem/ReduceGraph: "true"             # 优化图结构，降低定位时的计算压力
+#       # 数据库路径：请确保此路径在你的机器上是正确的
+#       database_path: "/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_20260112.db"
       
-      # 确保不发布 /map 话题给 Nav2 造成干扰
-      publish_tf: true                    # 必须保持 true，提供定位变换
-      
-      # 动态清理
-      Grid/RayTracing: "true"             # 开启射线追踪，自动清理移动的人影/物体
-      Grid/MinClusterSize: "20"           # 过滤掉少于 20 像素的噪点块
-      Grid/NormalsSegmentation: "true"    # 利用法线分割平面，比简单的几何高度裁剪更精准
 
-      # ==========================================================
-      # 6. 系统运行性能调优
-      # ==========================================================
-      Rtabmap/DetectionRate: "1.0"        # 定位模式下 1Hz 更新足够，节省 CPU 给 Nav2 使用
-      RGBD/FillHoles: "true"              # 填充深度图空洞
+#       # ==========================================================
+#       # 2. 基础订阅与同步配置 (解决时间戳同步与坐标转换报错)
+#       # ==========================================================
+#       subscribe_depth: true
+#       subscribe_rgb: true
+#       approx_sync: true                   # 使用近似同步，解决深度图和彩色图时间戳微小偏差
+#       qos: 1                              # 1=Reliable, 如果 RealSense 驱动是 Best Effort 请保持一致
+#       wait_for_transform: 0.2             # 等待 TF 变换的时间 (秒)
+#       queue_size: 100                     # 增大消息队列，防止丢包
+#       sync_queue_size: 100                # 增大同步队列
+
+#       # ==========================================================
+#       # 3. 视觉特征提取优化 (解决 "Not enough inliers" 报错)
+#       # ==========================================================
+#       Vis/FeatureType: "6"                # 6=GFTT/ORB: 对实时性友好且在室内环境更稳定
+#       Vis/MaxFeatures: "1500"             # 增加特征点数量，从默认的 400 提升到 1000
+#       Vis/MinInliers: "8"               # 关键：将匹配门槛从 20 降低到 8，让定位更容易触发
+#       Vis/EstimationType: "1"             # 1=3D->2D (PnP): RGB-D 相机最稳定的运动估计方式
+#       Vis/CorGuessWinSize: "50"           # 特征匹配搜索窗口大小
+#       Vis/BundleAdjustment: "1"           # 开启束调整，利用 GPU 性能优化位姿，减少地图重影
+#       Vis/InlierDistance: "0.1"
+
+#       # 里程计策略
+#       Odom/Strategy: "0"                  # 0=Frame-to-Map: 相比 Frame-to-Frame 漂移更小
+#       Odom/FillInfoData: "true"
+
+#       # ==========================================================
+#       # 4. 空间对齐、回环检测与 IMU 约束
+#       # ==========================================================
+#       # 利用 D435i 的重力感应修正地图
+#       Optimizer/GravitySigma: "0.1"       # 较小的值表示强约束，强制地图保持水平，解决地板倾斜
+#       RGBD/OptimizeFromGraphEnd: "true"   # 发生回环后从末端优化，保证当前定位的连续性
+#       RGBD/OptimizeMaxError: "10.0"  # 将 3.0 提高到 5.0，给初始重定位更多的容错空间
+#       RGBD/OptimizeMaxErrorAngle: "5.0" # 角度误差也同步放宽
+#       RGBD/ProximityBySpace: "true"       # 开启基于距离的近邻检测，增加定位成功率
+#       RGBD/NeighborLinkRefining: "true"   # 定位后进行细化对齐
+#       Rtabmap/MaxRepublished: "5"  # 从 2 增加到 5，让系统参考更多历史关键帧来验证当前位置
+
+#       # ==========================================================
+#       # 5. 2D 栅格地图质量优化 (Nav2 导航专用)
+#       # ==========================================================
+#       Grid/CellSize: "0.05"               # 5cm 分辨率，平衡精度与导航性能
+#       Grid/3D: "false"                    # 投影为纯 2D 地图，减少冗余数据
+      
+#       # 障碍物过滤 (解决路面黑斑和天花板干扰)
+#       Grid/MaxGroundHeight: "0.1"         # 10cm 以下视为地面
+#       Grid/MinObstacleHeight: "0.15"      # 15cm 以上视为障碍物 (跳过扫地机器人等小物体)
+#       Grid/MaxObstacleHeight: "2.0"       # 忽略 2m 以上的干扰（如吊灯）
+#       Grid/RayTracing: "true"            # 射线追踪用于清理动态物体（如挪走的椅子）
+
+#       Grid/FromDepth: "false"             # 关键：不从深度图生成网格
+#       Reg/Strategy: "0"                   # 仅视觉定位
+      
+#       # 确保不发布 /map 话题给 Nav2 造成干扰
+#       publish_tf: true                    # 必须保持 true，提供定位变换
+      
+#       # 动态清理
+#       Grid/RayTracing: "true"             # 开启射线追踪，自动清理移动的人影/物体
+#       Grid/MinClusterSize: "20"           # 过滤掉少于 20 像素的噪点块
+#       Grid/NormalsSegmentation: "true"    # 利用法线分割平面，比简单的几何高度裁剪更精准
+
+#       # ==========================================================
+#       # 6. 系统运行性能调优
+#       # ==========================================================
+#       Rtabmap/DetectionRate: "1.0"        # 定位模式下 1Hz 更新足够，节省 CPU 给 Nav2 使用
+#       RGBD/FillHoles: "true"              # 填充深度图空洞
       

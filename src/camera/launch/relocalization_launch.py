@@ -33,27 +33,63 @@ def generate_launch_description():
         arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'camera_link']
     )
 
-    # 4. 官方 RTAB-Map 重定位模式 (模仿 slam_launch.py 但开启定位)
-    rtabmap_node= IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(rtabmap_launch_dir, 'rtabmap.launch.py')),
-        launch_arguments={
-            'localization': 'true',          # 核心：开启定位模式
-            'database_path': rtabmap_db_file,
-            'params_file': rtabmap_config_path,
-            'rgb_topic': '/camera/camera/color/image_raw',
-            'depth_topic': '/camera/camera/aligned_depth_to_color/image_raw',
-            'camera_info_topic': '/camera/camera/color/camera_info',
-            'imu_topic': '/camera/camera/imu',
-            'wait_imu_to_init': 'false',
-            'approx_sync': 'true',
-            'qos': '1',                      # 使用 Reliable 模式
-            'rviz': 'false',                 # 我们手动启动自定义 RViz
-            'viz': 'true',                    # 开启你需要的 rtabmap_viz 界面
-            'visual_odometry': 'true',          # 开启视觉里程计代替物理轮式里程计
-            'frame_id': 'camera_link',          # 直接以相机作为主体
-            'subscribe_odom_info': 'true',      # 订阅里程计信息用于调试
-            'publish_tf_odom': 'true',          # 由 RTAB-Map 发布 odom -> camera_link
-        }.items()
+    # # 4. 官方 RTAB-Map 重定位模式
+    # # 在 ROS 2 中，如果你通过 IncludeLaunchDescription 包含官方的 rtabmap.launch.py，官方脚本内部往往会自动处理参数映射。
+    # # 无法正常使用yaml配置参数
+    # rtabmap_node= IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(os.path.join(rtabmap_launch_dir, 'rtabmap.launch.py')),
+    #     launch_arguments={
+    #         'localization': 'true',          # 核心：开启定位模式
+    #         'database_path': rtabmap_db_file,
+    #         'params_file': rtabmap_config_path,
+
+    #         # 基础话题映射
+    #         'rgb_topic': '/camera/camera/color/image_raw',
+    #         'depth_topic': '/camera/camera/aligned_depth_to_color/image_raw',
+    #         'camera_info_topic': '/camera/camera/color/camera_info',
+    #         'imu_topic': '/camera/camera/imu',
+
+    #         'wait_imu_to_init': 'false',
+    #         'approx_sync': 'true',
+    #         'qos': '1',                      # 使用 Reliable 模式
+    #         'rviz': 'false',                 # 我们手动启动自定义 RViz
+    #         'viz': 'true',                    # 开启你需要的 rtabmap_viz 界面
+    #         'visual_odometry': 'true',          # 开启视觉里程计代替物理轮式里程计
+    #         'frame_id': 'camera_link',          # 直接以相机作为主体
+    #         'subscribe_odom_info': 'true',      # 订阅里程计信息用于调试
+    #         'publish_tf_odom': 'true',          # 由 RTAB-Map 发布 odom -> camera_link
+    #     }.items()
+    # )
+
+    # 2. 直接定义节点，不再 Include 官方 launch
+    rtabmap_node = Node(
+        package='rtabmap_slam',
+        executable='rtabmap',
+        name='rtabmap',
+        namespace='camera',  # 必须与你 YAML 中的 /camera/rtabmap 一致
+        output='screen',
+        parameters=[
+            # 加载外部 YAML 文件
+            rtabmap_config_path, 
+            # 允许在这里覆盖关键参数，确保数据库路径正确
+            {
+                'database_path': rtabmap_db_file,
+                'use_sim_time': False,
+                'frame_id': 'camera_link',
+                'subscribe_depth': True,
+                'subscribe_rgb': True,
+                'approx_sync': True,
+                'visual_odometry': True,
+            }
+        ],
+        remappings=[
+            ("rgb/image", "/camera/camera/color/image_raw"),
+            ("depth/image", "/camera/camera/aligned_depth_to_color/image_raw"),
+            ("rgb/camera_info", "/camera/camera/color/camera_info"),
+            ("imu", "/camera/camera/imu"),
+            ("odom", "/camera/camera/odom") # 如果有里程计的话
+        ],
+        arguments=['--delete_db_on_start', 'false'] # 确保不会误删数据库
     )
 
     # 5. 手动启动其他配套节点

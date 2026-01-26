@@ -1,14 +1,14 @@
-# d435i摄像头配置文件
-d435i_params.yaml
+# d435i_params.yaml
+d435i摄像头配置文件
 
-# rtabmap建图的配置文件
-rtabmap_params.yaml
+# rtabmap_params.yaml
+rtabmap建图的配置文件
 
-# rtabmap定位模式的配置文件
-rtabmap_params_localization.yaml
+# rtabmap_params_localization.yaml
+rtabmap定位模式的配置文件
 
-# nav配置文件
-nav2_params.yaml
+# nav2_params.yaml
+nav配置文件
 
-# AMCL配置文件
-amcl_params.yaml
+# amcl_params.yaml
+AMCL配置文件
