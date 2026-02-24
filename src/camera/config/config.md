@@ -12,3 +12,6 @@ nav配置文件
 
 # amcl_params.yaml
 AMCL配置文件
+
+# rooms.yaml
+房间的固定坐标，用于语义导航

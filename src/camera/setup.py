@@ -31,7 +31,12 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'vision_node = camera.vision_node:main',
+            'vision_node = camera.vision_node:main',    # 视觉检测代码
+            'semantic_nav = camera.semantic_nav:main', # 语义导航代码
+            'semantic_map= camera.semantic_map:main',
+            'semantic_detector= camera.semantic_detector:main',
+            'snav_to_object.py= camera.nav_to_object.py:main',
+            
         ],
     },
 )

@@ -3,3 +3,7 @@
 
 # relocation.rviz
 重定位的参数
+
+# 仿真环境下的参数
+navi.rviz
+slam.rviz
