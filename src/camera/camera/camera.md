@@ -17,3 +17,8 @@ semantic_map.py
 
 # vision_node.py
 视觉节点，用于显示画面
+
+# get_coords.py
+实时监听你在 Rviz 中点击 "2D Estimate" 
+或机器人在当前地图中的位置
+直接打印出符合 rooms.yaml 格式的坐标。

@@ -82,6 +82,15 @@ class SemanticNavNode(Node):
         goal_msg.pose.pose.orientation.w = math.cos(th * 0.5)
         goal_msg.pose.pose.orientation.z = math.sin(th * 0.5)
 
+        # --- 在此处插入日志打印 ---
+        self.get_logger().info('='*40)
+        self.get_logger().info(f"🚀 语义导航动作已触发！")
+        self.get_logger().info(f"📍 目标坐标 (X, Y): {goal_msg.pose.pose.position.x}, {goal_msg.pose.pose.position.y}")
+        self.get_logger().info(f"🧭 目标朝向 (Yaw): {th} 弧度")
+        self.get_logger().info("ℹ️  正在等待 Nav2 服务响应 (无底盘时此处可能会卡住或报错)...")
+        self.get_logger().info('='*40)
+        # ------------------------
+
         self.nav_client.wait_for_server()
         self.nav_client.send_goal_async(goal_msg)
 

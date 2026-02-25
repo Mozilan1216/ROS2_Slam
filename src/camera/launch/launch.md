@@ -16,3 +16,6 @@ relocalization_launch.py
 
 # 根据 D435i 建好的地图进行 nav 导航
 ros2 launch nav_d435i_launch.py
+
+# 整体实现
+nav_manual_launch.py
