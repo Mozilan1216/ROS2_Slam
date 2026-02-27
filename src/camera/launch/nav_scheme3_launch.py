@@ -12,7 +12,7 @@ def generate_launch_description():
     #config
     map_yaml_file = os.path.join(camera_pkg, 'map', 'rtabmap_20260112.yaml') 
     rtabmap_config_path = os.path.join(camera_pkg, 'config', 'rtabmap_params_localization.yaml')
-    # nav2_params_file = os.path.join(camera_pkg, 'config', 'nav2_params_scheme3.yaml')
+    nav2_params_file = os.path.join(camera_pkg, 'config', 'nav2_params_scheme3.yaml')
     rviz_config_path = os.path.join(camera_pkg, 'rviz', 'navi.rviz') 
 
     rtabmap_db_file = '/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_20260112.db'
@@ -32,6 +32,7 @@ def generate_launch_description():
             'enable_accel': 'true',
             'unite_imu_method': '2',
             'enable_sync': 'true',
+            'initial_reset': 'true', # 强制重置相机，解决没话题的问题
             # 降低一点分辨率以减轻计算压力，保证里程计稳定
             'depth_module.profile': '640x480x15',
             'rgb_camera.profile': '640x480x15'
@@ -109,18 +110,18 @@ def generate_launch_description():
     )
 
     # 6. Nav2 纯导航
-    # nav2_node = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'navigation_launch.py')),
-    #     launch_arguments={
-    #         'use_sim_time': 'false',
-    #         'params_file': nav2_params_file,
-    #         'autostart': 'true',
-    #     }.items()
-    # )
+    nav2_node = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'navigation_launch.py')),
+        launch_arguments={
+            'use_sim_time': 'false',
+            'params_file': nav2_params_file,
+            'autostart': 'true',
+        }.items()
+    )
 
     return LaunchDescription([
-        SetEnvironmentVariable('MESA_GL_VERSION_OVERRIDE', '3.3'),
-        SetEnvironmentVariable('ROS_LOCALHOST_ONLY', '1'),
+        # SetEnvironmentVariable('MESA_GL_VERSION_OVERRIDE', '3.3'),
+        # SetEnvironmentVariable('ROS_LOCALHOST_ONLY', '1'),
         camera_node,
         static_tf,
         depth_to_scan_node, # 启动伪雷达转换
