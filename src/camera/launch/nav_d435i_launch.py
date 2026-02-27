@@ -8,16 +8,19 @@ from launch_ros.actions import Node
 def generate_launch_description():
     # 路径配置
     camera_pkg = get_package_share_directory('camera')
+
+    # config
     map_yaml_file = os.path.join(camera_pkg, 'map', 'rtabmap_20260112.yaml') 
-    loc_params_file = os.path.join(camera_pkg, 'config', 'rtabmap_params_localization.yaml')
+    rtabmap_config_path = os.path.join(camera_pkg, 'config', 'rtabmap_params_localization.yaml')
     nav2_params_file = os.path.join(camera_pkg, 'config', 'nav2_params.yaml')
     rviz_config_path = os.path.join(camera_pkg, 'rviz', 'D435i.rviz')
 
+    # launch
     rs_launch_dir = os.path.join(get_package_share_directory('realsense2_camera'), 'launch')
     rtabmap_launch_dir = os.path.join(get_package_share_directory('rtabmap_launch'), 'launch')
     nav2_launch_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
 
-    # A. Realsense 驱动 (开启 IMU 和 深度对齐)
+    # A. Realsense 驱动
     camera_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(rs_launch_dir, 'rs_launch.py')),
         launch_arguments={
@@ -34,7 +37,7 @@ def generate_launch_description():
     rtabmap_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(rtabmap_launch_dir, 'rtabmap.launch.py')),
         launch_arguments={
-            'rtabmap_params_proxy': loc_params_file,
+            'rtabmap_params_proxy': rtabmap_config_path,
             'database_path': '/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_20260112.db',
             'localization': 'true',  # 激活定位模式，不再添加新节点到数据库
             'visual_odometry': 'true',
@@ -52,7 +55,6 @@ def generate_launch_description():
         }.items()
     )
 
-    # 添加 RViz 节点
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
