@@ -27,7 +27,14 @@ def generate_launch_description():
     slam_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(rtabmap_launch_dir, 'rtabmap.launch.py')),
         launch_arguments={
-            'rtabmap_args': '--delete_db_on_start --Vis/MinInliers 10',
+            # --- 核心优化项 ---
+            # Vis/MinInliers 20: 提高特征匹配阈值，对抗机器狗步态震动
+            # Grid/RangeMax 3.5: 截断 3.5 米外的劣质深度数据，消除外围毛刺
+            # Grid/RayTracing true: 开启射线追踪，自动清除由于漂移产生的动态残影
+            # Grid/MaxGroundHeight 0.1: 防止由于机器狗颠簸把地面误识别为障碍物
+            'rtabmap_args': '--delete_db_on_start --Vis/MinInliers 20 --Grid/RangeMax 3.5 --Grid/RayTracing true --Grid/MaxGroundHeight 0.1',
+
+            # 'rtabmap_args': '--delete_db_on_start --Vis/MinInliers 10',
             'rgb_topic': '/camera/camera/color/image_raw',
             'depth_topic': '/camera/camera/aligned_depth_to_color/image_raw',
             'camera_info_topic': '/camera/camera/color/camera_info',

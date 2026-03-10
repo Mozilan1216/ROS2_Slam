@@ -14,8 +14,8 @@ mapping_rtabmap_launch.py
 # D435i 通过rtabmap进行视觉重定位
 relocalization_launch.py
 
-# 根据 D435i 建好的地图进行 nav 导航
+# 根据 D435i 建好的地图进行 nav 导航（未成功）
 ros2 launch nav_d435i_launch.py
 
-# 整体实现
-nav_manual_launch.py
+# nav导航成功版
+nav_scheme3_launch.py

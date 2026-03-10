@@ -41,6 +41,7 @@ camera:
       Grid/MaxGroundHeight: "0.1"    # 10cm 以下视为地面
       Grid/MinObstacleHeight: "0.11" # 11cm 以上视为障碍
       Grid/MaxObstacleHeight: "2.0"  # 忽略天花板
+      Grid/RangeMax: "3.0"           # 限制建图的最大距离
 
       # 动态物体清理
       Grid/RayTracing: "true"        # 开启射线追踪，清理动态人影

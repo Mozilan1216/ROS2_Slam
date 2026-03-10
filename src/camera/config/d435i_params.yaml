@@ -17,9 +17,9 @@ camera:
 
       # --- 4. 视频流参数
       rgb_camera:
-        profile: "640x480x15"
+        profile: "640x480x30"
       depth_module:
-        profile: "640x480x15"  #
+        profile: "640x480x30"  #
       
       # --- 5. IMU 配置：确保高频同步以防止建图“爆红” ---
       enable_gyro: true

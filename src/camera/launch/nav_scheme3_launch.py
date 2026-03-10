@@ -10,12 +10,14 @@ def generate_launch_description():
     camera_pkg = get_package_share_directory('camera')
 
     #config
-    map_yaml_file = os.path.join(camera_pkg, 'map', 'rtabmap_20260112.yaml') 
     rtabmap_config_path = os.path.join(camera_pkg, 'config', 'rtabmap_params_localization.yaml')
     nav2_params_file = os.path.join(camera_pkg, 'config', 'nav2_params_scheme3.yaml')
     rviz_config_path = os.path.join(camera_pkg, 'rviz', 'navi.rviz') 
 
-    rtabmap_db_file = '/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_20260112.db'
+    map_yaml_file = os.path.join(camera_pkg, 'map', 'map_20260309.yaml') 
+    rtabmap_db_file = '/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_20260309.db'
+    # map_yaml_file = os.path.join(camera_pkg, 'map', 'rtabmap_20260112.yaml') 
+    # rtabmap_db_file = '/home/mozilan/nav2_ws/src/camera/rtabmap/rtabmap_220260112.db'
     
     # launch
     rs_launch_dir = os.path.join(get_package_share_directory('realsense2_camera'), 'launch')
